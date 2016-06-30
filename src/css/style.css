@@ -1,0 +1,38 @@
+/* @font-face kit by Fonts2u (http://www.fonts2u.com) */
+@font-face {font-family:"Sinclair ZX Spectrum ES Regular";
+src:url("sinclair_zx_spectrum_es.eot?") format("eot"),url("sinclair_zx_spectrum_es.woff") format("woff"),url("sinclair_zx_spectrum_es.ttf") format("truetype"),url("sinclair_zx_spectrum_es.svg#Sinclair-ZX-Spectrum-ES") format("svg");font-weight:normal;font-style:normal;}
+
+
+body{
+  /*http://www.styleseven.com/php/get_product.php?product=ZX-Spectrum-7*/
+  font-family: 'Sinclair ZX Spectrum ES Regular',helvetica;
+
+  background-color: #CCC;
+}
+::selection,.wrap span.highlight{
+  background: #ffb7b7; /* WebKit/Blink Browsers */
+}
+
+.wrap{
+  width:570px;
+  font-size: 20;
+  margin: 0 auto;
+  /*display: inline-block;*/
+  /* http://stackoverflow.com/a/6151617/2205297 */
+  white-space:pre;
+}
+[contenteditable]:focus { outline: 0px solid transparent; }
+
+h3{
+  text-transform: uppercase;
+}
+
+#textArea{
+  height:400px;
+}
+
+
+pre{
+    white-space: pre-wrap;
+    background: #EEE;
+}
