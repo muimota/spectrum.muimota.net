@@ -1,19 +1,31 @@
 //http://stackoverflow.com/a/12423733/2205297
-function ditherImage(){
+function ditherImages(selector){
+
+  if(selector == undefined){
+    selector = 'img';
+  }
+
+  $(selector).each(function(index,domElement){ditherImage(domElement);});
+}
+
+function ditherImage(domElement){
 
   var canvas = document.createElement('canvas');
   var ctx    = canvas.getContext('2d');
-  var img    = new Image();
+  var img    = $(domElement);
 
-  img.src    = 'img/paris.jpg';
-  img.onload = function() {
+  if(!img.is('img')){
+    console.log('not image');
+    return;
+  }
+  //when loaded
+  img.load( function() {
 
-    var depth      = 128;
-    var resolution = 3;
+    var resolution = 2;
 
-    canvas.width  = this.width / resolution ;
-    canvas.height = this.height/ resolution ;
-    ctx.drawImage( this, 0, 0, this.width / resolution, this.height / resolution );
+    canvas.width  = this.clientWidth / resolution ;
+    canvas.height = this.clientHeight/ resolution ;
+    ctx.drawImage( this, 0, 0, canvas.width, canvas.height );
 
     var imageData  = ctx.getImageData( 0, 0, canvas.width, canvas.height);
     // Matrix
@@ -39,28 +51,26 @@ function ditherImage(){
       }
     }
     // filter
+
     for ( x=0; x<width; x++ )
     {
         for ( y=0; y<height; y++ )
         {
             a    = ( x * height + y ) * 4;
             b    = threshold_map_4x4[ x%4 ][ y%4 ];
-            //grayscale
-            gray = (pixel[ a + 0 ] + pixel[ a + 1 ] + pixel[ a + 2 ]) / 3 ;
-            gray = ( (gray + b) / depth | 0 ) * depth;
+
             pixel[ a + 0 ] = quantize(pixel[ a + 0 ] + b);
-            pixel[ a + 1 ] = quantize(pixel[ a + 1 ] + b );
+            pixel[ a + 1 ] = quantize(pixel[ a + 1 ] + b);
             pixel[ a + 2 ] = quantize(pixel[ a + 2 ] + b);
 
-            //pixel[ a + 3 ] = ( (pixel[ a + 3 ]+ b) / depth | 3 ) * depth;
         }
     }
 
     ctx.putImageData( imageData, 0, 0);
-    canvas.style.width  = this.width;
-    canvas.style.height = this.height;
+    //css scale up
+    canvas.style.width  = img.width();
+    canvas.style.height = img.height();
+    img.replaceWith(canvas);
+  });
 
-  };
-  //canvas.style.width = 600;
-  document.body.appendChild(canvas);
 }
