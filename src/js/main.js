@@ -1,4 +1,5 @@
 var audioCtx = null;
+var gainNode = null;
 var sounds = null;
 var playingSound = null;
 
@@ -18,6 +19,11 @@ $(document).ready(function(){
 function initAudio(){
   // create web audio api context
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.2;
+  gainNode.connect(audioCtx.destination);
+
   // create Oscillator node
   var sound0 = audioCtx.createOscillator();
 
@@ -45,7 +51,7 @@ function playStartBlock(string){
   leader.type = 'square';
   leader.frequency.value = 808; // value in hertz
   leader.start();
-  leader.connect(audioCtx.destination);
+  leader.connect(gainNode);
 
   setTimeout(function(){
 
@@ -57,7 +63,7 @@ function playStartBlock(string){
     blockStart.type = 'square';
     blockStart.frequency.value = 2500; // value in hertz
     blockStart.start();
-    blockStart.connect(audioCtx.destination);
+    blockStart.connect(gainNode);
 
     setTimeout(function(){
       blockStart.stop();
@@ -87,7 +93,7 @@ function playString(string,charIndex,bitIndex){
       playingSound.disconnect();
     }
     playingSound = sounds[bit].sound;
-    playingSound.connect(audioCtx.destination);
+    playingSound.connect(gainNode);
   }
   prevbit = bit;
 
