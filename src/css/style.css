@@ -6,33 +6,32 @@ src:url("sinclair_zx_spectrum_es.eot?") format("eot"),url("sinclair_zx_spectrum_
 body{
   /*http://www.styleseven.com/php/get_product.php?product=ZX-Spectrum-7*/
   font-family: 'Sinclair ZX Spectrum ES Regular',helvetica;
-
   background-color: #CCC;
 }
-::selection,.wrap span.highlight{
-  background: #ffb7b7; /* WebKit/Blink Browsers */
+
+a,a:visited{text-decoration: none;
+  color:black;
 }
+a:hover{color:red;}
+
+span.highlight{
+  background: #ffb7b7; /* WebKit/Blink Browsers */
+  visibility: visible;
+}
+
 
 .wrap{
-  width:570px;
+  width:460px;
   font-size: 20;
   margin: 0 auto;
-  /*display: inline-block;*/
-  /* http://stackoverflow.com/a/6151617/2205297 */
-  white-space:pre;
 }
-[contenteditable]:focus { outline: 0px solid transparent; }
-
+.wrap > img{
+  width:460px;
+}
 h3{
   text-transform: uppercase;
 }
 
-#textArea{
-  height:400px;
-}
-
-
-pre{
-    white-space: pre-wrap;
-    background: #EEE;
+img{
+  /*visibility: hidden; */
 }

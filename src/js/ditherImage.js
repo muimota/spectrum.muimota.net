@@ -21,7 +21,7 @@ function ditherImage(domElement){
   //when loaded
   img.load( function() {
 
-    var resolution = 2;
+    var resolution = 3;
 
     canvas.width  = this.clientWidth / resolution ;
     canvas.height = this.clientHeight/ resolution ;
@@ -42,6 +42,7 @@ function ditherImage(domElement){
     var pixel  = imageData.data;
     var x, y, a, b, gray;
 
+    //quantize value to
     function quantize(val){
 
       if(val<155){
@@ -68,8 +69,8 @@ function ditherImage(domElement){
 
     ctx.putImageData( imageData, 0, 0);
     //css scale up
-    canvas.style.width  = img.width();
-    canvas.style.height = img.height();
+    canvas.style.width  = img.css('width');
+    canvas.style.height = img.css('hright');
     img.replaceWith(canvas);
   });
 

@@ -2,36 +2,22 @@ var audioCtx = null;
 var sounds = null;
 var playingSound = null;
 
-var origHTML  ;
+var origHTML;
+var hightlightElem;
+var prevbit ;
+
 $(document).ready(function(){
   initAudio();
 
-  //http://stackoverflow.com/q/21257688/2205297
-  $('[contenteditable]').on('paste',function(e) {
-    e.preventDefault();
-    var text = (e.originalEvent || e).clipboardData.getData('text/plain') || prompt('Paste something..');
-    document.execCommand('insertText', false, text);
-  });
-
-  $('div[contenteditable]').keydown(function(e) {
-    // trap the return key being pressed
-    if (e.keyCode === 13) {
-      // insert 2 br tags (if only one br tag is inserted the cursor won't go to the next line)
-      document.execCommand('insertHTML', false, '<br>');
-      // prevent the default behaviour of return key pressed
-      return false;
-    }
-  });
-
-  ditherImage();
-
+  ditherImages();
+  initText($('#textArea'));
+  $('#soundButton').click(playTextArea);
 });
 
 
 function initAudio(){
   // create web audio api context
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
   // create Oscillator node
   var sound0 = audioCtx.createOscillator();
 
@@ -48,11 +34,11 @@ function initAudio(){
   sounds = {0:{sound:sound0,ms:1000.0/sound0.frequency.value},
             1:{sound:sound1,ms:1000.0/sound1.frequency.value}};
 
-
 }
 
-
 function playStartBlock(string){
+
+  //leader block 2ms at 2500
   // leader tone
   var leader = audioCtx.createOscillator();
 
@@ -65,7 +51,7 @@ function playStartBlock(string){
 
     leader.stop();
     leader.disconnect();
-
+    //starting block 2ms at 2500
     var blockStart = audioCtx.createOscillator();
 
     blockStart.type = 'square';
@@ -79,89 +65,96 @@ function playStartBlock(string){
       playString(string);
     },2);
 
-  },2000);
+  },1000);
 }
 
 function playString(string,charIndex,bitIndex){
 
-  charIndex  = charIndex  || 0;
+  if(charIndex === undefined){
+    charIndex = 0;
+    $('#textArea span').first().addClass('highlight');
+  }
   //http://stackoverflow.com/a/5409767/2205297
   bitIndex   = (bitIndex === undefined) ? 7 : bitIndex;
 
-  if(playingSound != null){
-    playingSound.disconnect();
-  }
-
-
-
   var bit = (string.charCodeAt(charIndex) >> bitIndex) & 1;
 
-  playingSound = sounds[bit].sound;
   var timeout = sounds[bit].ms;
 
-  playingSound.connect(audioCtx.destination);
+  //just disconnect if prev bit was different
+  if(prevbit != bit){
+    if(playingSound != null){
+      playingSound.disconnect();
+    }
+    playingSound = sounds[bit].sound;
+    playingSound.connect(audioCtx.destination);
+  }
+  prevbit = bit;
 
   bitIndex --;
   if(bitIndex < 0){
     bitIndex = 7;
     charIndex ++;
 
+    //end text
     if(charIndex >= string.length){
       playingSound.disconnect();
       playingSound = null;
-      $('#textArea').html(origHTML);
+      $('#textArea span').removeClass('highlight');
       return;
     }
 
-    if(string[charIndex] == ' ' || string[charIndex] == '<'){
-      $('#textArea span').removeClass('highlight');
-    }else{
-      $('#textArea span').each(function(i){
-        var self  = $(this);
-        var start = self.data('start');
-        var end   = self.data('end');
-        if(charIndex >= start && charIndex <= end){
-          self.addClass('highlight');
-        }
-      })
-    }
+    $('#textArea span').each(function(i){
+      var self  = $(this);
+      var start = self.data('start');
+      var end   = self.data('end');
+
+      //@todo:fix when charIndex == 0
+      if(charIndex == start){
+        self.prev().removeClass('highlight');
+        self.addClass('highlight');
+      }
+    })
   }
 
   setTimeout(function(){playString(string,charIndex,bitIndex)},timeout);
 }
 
-function initText(){
+//insert every word inside a span
+function initText(domElement){
 
-  var text = $('#textArea').html();
-  //text = text.replace(/<br>/g,'\n');
-  var words = text.replace(/  +/g, ' ').split(' ');
+  domElement = $(domElement);
+  var text = domElement.text().trim();
+  text = text.replace(/  +|\n/g, ' ');
+
+  var words = text.split(' ');
+  text = text.replace(/\s/g,'');
   var lastIndex = 0;
-  $('#textArea').empty();
-
+  $(domElement).empty();
+  //puts every word in a span
   $.each(words, function(i, word) {
       var index = text.indexOf(word,lastIndex);
-      var whitespaces = new Array(index - lastIndex + 1).join(' ');
       lastIndex = index + word.length;
-      $('#textArea').append(whitespaces);
       var wordDom;
       if(word == '<br>'){
         wordDom = $('<br>');
       }else{
         wordDom = $('<span>').text(word).data('start',index).data('end',lastIndex);
       }
-      $('#textArea').append(wordDom);
+      $(domElement).append(wordDom);
+      $(domElement).append(' ');
+
   });
 
 }
 
 function playTextArea(){
 
-  origHTML = $('#textArea').html();
-  initText();
-
-  if(playingSound == null){
-    playStartBlock(origHTML);
+  if(playingSound != null){
+    return;
   }
-  //remove all spans
-  //$('#textArea').html(text);
+  var text = $('#textArea span').text()
+  text.replace('\n','');
+  playStartBlock(text);
+
 }
