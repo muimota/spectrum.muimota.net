@@ -11,7 +11,7 @@ $(document).ready(function(){
   initAudio();
 
   ditherImages();
-  initText($('#textArea'));
+  initText($('.loadingText p'));
   $('#soundButton').click(playTextArea);
 });
 
@@ -21,7 +21,7 @@ function initAudio(){
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.2;
+  gainNode.gain.value = 0.1;
   gainNode.connect(audioCtx.destination);
 
   // create Oscillator node
@@ -42,7 +42,7 @@ function initAudio(){
 
 }
 
-function playStartBlock(string){
+function playStartBlock(domElement){
 
   //leader block 2ms at 2500
   // leader tone
@@ -68,18 +68,23 @@ function playStartBlock(string){
     setTimeout(function(){
       blockStart.stop();
       blockStart.disconnect();
-      playString(string);
+      playText(domElement);
     },2);
 
   },1000);
 }
 
-function playString(string,charIndex,bitIndex){
+function playText(domElement,charIndex,bitIndex){
+
+  var currentElem = domElement.first();
 
   if(charIndex === undefined){
     charIndex = 0;
-    $('#textArea span').first().addClass('highlight');
+    currentElem.find('span').first().addClass('loading');
   }
+
+
+  var string = currentElem.data('text');
   //http://stackoverflow.com/a/5409767/2205297
   bitIndex   = (bitIndex === undefined) ? 7 : bitIndex;
 
@@ -106,30 +111,41 @@ function playString(string,charIndex,bitIndex){
     if(charIndex >= string.length){
       playingSound.disconnect();
       playingSound = null;
-      $('#textArea span').removeClass('highlight');
+      currentElem.find('span').removeClass('loading').addClass('loaded');
+      if(domElement.size()>1){
+        playStartBlock(domElement.nextAll());
+      }
       return;
     }
 
-    $('#textArea span').each(function(i){
+    currentElem.find('span').each(function(i){
       var self  = $(this);
       var start = self.data('start');
       var end   = self.data('end');
 
       //@todo:fix when charIndex == 0
       if(charIndex == start){
-        self.prev().removeClass('highlight');
-        self.addClass('highlight');
+        self.prev().removeClass('loading').addClass('loaded');
+        self.addClass('loading');
       }
     })
   }
 
-  setTimeout(function(){playString(string,charIndex,bitIndex)},timeout);
+  setTimeout(function(){playText(domElement,charIndex,bitIndex)},timeout);
 }
 
 //insert every word inside a span
 function initText(domElement){
 
   domElement = $(domElement);
+
+  if(domElement.size()>1){
+    for(var i=0;i<domElement.size();i++){
+      initText(domElement.get(i));
+    }
+    return
+  }
+
   var text = domElement.text().trim();
   text = text.replace(/  +|\n/g, ' ');
 
@@ -151,7 +167,7 @@ function initText(domElement){
       $(domElement).append(' ');
 
   });
-
+  domElement.data('text',text);
 }
 
 function playTextArea(){
@@ -159,8 +175,9 @@ function playTextArea(){
   if(playingSound != null){
     return;
   }
-  var text = $('#textArea span').text()
-  text.replace('\n','');
-  playStartBlock(text);
+  selector = '.loadingText p'
+  domElement = $(selector);
+
+  playStartBlock(domElement);
 
 }

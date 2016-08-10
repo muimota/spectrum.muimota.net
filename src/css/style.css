@@ -14,19 +14,27 @@ a,a:visited{text-decoration: none;
 }
 a:hover{color:red;}
 
-span.highlight{
-  background: #ffb7b7; /* WebKit/Blink Browsers */
+span.loading{
+  visibility: visible;
+  color:#CCC;
+  background: black;
+}
+
+span.loaded{
   visibility: visible;
 }
 
+span{
+  visibility: hidden;
+}
 
 .wrap{
-  width:460px;
-  font-size: 20;
+  width:345px;
+  font-size: 1.2em;
   margin: 0 auto;
 }
 .wrap > img{
-  width:460px;
+  width:100%;
 }
 h3{
   text-transform: uppercase;

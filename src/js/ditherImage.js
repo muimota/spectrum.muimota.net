@@ -70,7 +70,7 @@ function ditherImage(domElement){
     ctx.putImageData( imageData, 0, 0);
     //css scale up
     canvas.style.width  = img.css('width');
-    canvas.style.height = img.css('hright');
+    canvas.style.height = img.css('height');
     img.replaceWith(canvas);
   });
 
