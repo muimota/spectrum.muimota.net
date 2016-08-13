@@ -12,7 +12,7 @@ $(document).ready(function(){
 
   ditherImages();
   initText($('.loadingText p'));
-  $('#soundButton').click(playTextArea);
+  playStartBlock($('.loadingText p'));
 });
 
 
