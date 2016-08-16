@@ -13,14 +13,24 @@ $(document).ready(function(){
 
   ditherImages();
   initText($('.loadingText p'));
-  var text = $('.loadingText p').text();
-  var playLength = playString(text,1.2);
-  setTimeout(function(){
-    showText($('.loadingText p>span'),playLength-1.2)
-  },1200);
-
+  var jqElem = $('.loadingText p');
+  var delay = 0;
+  var lead  = 1.0;
+  for(var i=0;i<jqElem.length;i++){
+    delay += sonify($(jqElem[i]),lead,delay);
+  }
 });
 
+function sonify(jqElem,lead=1.2,delay=0) {
+  var text = jqElem.text();
+  var audioBufferNode = audioString(text,lead);
+  var playLength = audioBufferNode.buffer.length / audioBufferNode.buffer.sampleRate;
+  setTimeout(function(){
+    audioBufferNode.start();
+    showText(jqElem.children('span'),playLength-lead,lead);
+  },delay*1000);
+  return playLength;
+}
 
 function initAudio(){
   // create web audio api context
@@ -44,8 +54,8 @@ function initAudio(){
   }
 
 }
-
-function playString(string,leadTime = 0){
+//creates an audio buffer based on string and lead time
+function audioString(string,leadTime = 0){
 
   var bits = [];
   var frameCount = 0;
@@ -88,10 +98,8 @@ function playString(string,leadTime = 0){
   var source = audioCtx.createBufferSource();
   source.buffer = myArrayBuffer;
   source.connect(gainNode);
-  // start the source playing
-  source.start();
 
-  return frameCount/sampleRate;
+  return source;
 }
 
 
@@ -131,20 +139,26 @@ function initText(domElement){
   domElement.data('text',text);
 }
 
-function showText(jqElem,time){
-  var delay = time/jqElem.length*1000;
+
+
+function showText(jqElem,time, delay){
+
+  var time = time/jqElem.length*1000;
+
   //a local function to keep
-  function showWord(word,prevWord,delay){
+  function showWord(word,prevWord,time){
     setTimeout( function() {
       word.removeClass().addClass('loading');
       prevWord.removeClass().addClass('loaded');
-    },delay); // delay 100 ms
+    },time); // delay 100 ms
   }
 
-  for(var i=0;i<jqElem.length+1;i++){
-    var word = $(jqElem[i]);
-    var prevWord = $(jqElem[i-1]);
-    showWord(word,prevWord,i*delay);
-  }
+  setTimeout( function() {
+    for(var i=0;i<jqElem.length+1;i++){
+      var word = $(jqElem[i]);
+      var prevWord = $(jqElem[i-1]);
+      showWord(word,prevWord,i*time);
+    }
+  },delay*1000);
 
 }
