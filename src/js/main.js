@@ -5,7 +5,6 @@ var buffers = null;
 var sampleRate = null;
 var playingSound = null;
 
-var origHTML;
 var hightlightElem;
 var prevbit ;
 
@@ -14,8 +13,12 @@ $(document).ready(function(){
 
   ditherImages();
   initText($('.loadingText p'));
-  var text = $('.loadingText').text();
-  playString(text,1.2);
+  var text = $('.loadingText p').text();
+  var playLength = playString(text,1.2);
+  setTimeout(function(){
+    showText($('.loadingText p>span'),playLength-1.2)
+  },1200);
+
 });
 
 
@@ -34,7 +37,7 @@ function initAudio(){
   for (var i=0;i<bufferFreqs.length;i++) {
     var bufferFreq = bufferFreqs[i];
     buffers[bufferFreq] = new Array();
-    for(var j = 0;j<1.0/bufferFreq * sampleRate ;j++){
+    for(var j = 0;j<1.0/bufferFreq * sampleRate;j++){
       var t = j/sampleRate;
       buffers[bufferFreq].push(Math.sign(Math.sin(2*Math.PI*t*bufferFreq)));
     }
@@ -84,9 +87,11 @@ function playString(string,leadTime = 0){
 
   var source = audioCtx.createBufferSource();
   source.buffer = myArrayBuffer;
-  source.connect(audioCtx.destination);
+  source.connect(gainNode);
   // start the source playing
   source.start();
+
+  return frameCount/sampleRate;
 }
 
 
@@ -117,7 +122,7 @@ function initText(domElement){
       if(word == '<br>'){
         wordDom = $('<br>');
       }else{
-        wordDom = $('<span>').text(word).data('start',index).data('end',lastIndex);
+        wordDom = $('<span>').text(word).data('start',index).data('end',lastIndex).addClass('unloaded');
       }
       $(domElement).append(wordDom);
       $(domElement).append(' ');
@@ -126,15 +131,20 @@ function initText(domElement){
   domElement.data('text',text);
 }
 
-function playTextArea(){
-  playString('pepebjbjbjhjkhkjh');
-  /*
-  if(playingSound != null){
-    return;
+function showText(jqElem,time){
+  var delay = time/jqElem.length*1000;
+  //a local function to keep
+  function showWord(word,prevWord,delay){
+    setTimeout( function() {
+      word.removeClass().addClass('loading');
+      prevWord.removeClass().addClass('loaded');
+    },delay); // delay 100 ms
   }
-  selector = '.loadingText p'
-  domElement = $(selector);
 
-  playStartBlock(domElement);
- */
+  for(var i=0;i<jqElem.length+1;i++){
+    var word = $(jqElem[i]);
+    var prevWord = $(jqElem[i-1]);
+    showWord(word,prevWord,i*delay);
+  }
+
 }
