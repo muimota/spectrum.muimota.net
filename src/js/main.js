@@ -21,7 +21,7 @@ $(document).ready(function(){
   }
 });
 
-function sonify(jqElem,lead=1.2,delay=0) {
+function sonify(jqElem,lead,delay) {
   var text = jqElem.text();
   var audioBufferNode = audioString(text,lead);
   var playLength = audioBufferNode.buffer.length / audioBufferNode.buffer.sampleRate;
@@ -55,7 +55,7 @@ function initAudio(){
 
 }
 //creates an audio buffer based on string and lead time
-function audioString(string,leadTime = 0){
+function audioString(string,leadTime){
 
   var bits = [];
   var frameCount = 0;
