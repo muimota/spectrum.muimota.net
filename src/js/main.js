@@ -1,27 +1,40 @@
 
 $(document).ready(function(){
-  initAudio();
 
+  initAudio();
   ditherImages();
   initText($('.loadingText p'));
+
   var jqElem = $('.loadingText p');
   var delay = 0.2;
   var lead  = 1.2;
-  for(var i=0;i<jqElem.length;i++){
-    delay += sonify($(jqElem[i]),lead,delay);
-    lead=0.0;
-  }
+
+  sonify(jqElem,lead);
+
 });
 
-function sonify(jqElem,lead,delay) {
+function sonify(jqElem,lead) {
+
+  var nextElem = null;
+  if(jqElem.length>1){
+    var auxElem = jqElem[0];
+    nextElem = jqElem.nextAll();
+    jqElem = $(auxElem);
+  }
   var text = jqElem.text();
   var audioBufferNode = audioString(text,lead);
   var playLength = audioBufferNode.buffer.length / audioBufferNode.buffer.sampleRate;
-  setTimeout(function(){
-    audioBufferNode.start();
-    showText(jqElem.children('span'),playLength-lead,lead);
-  },delay*1000);
+
+  audioBufferNode.start();
+  showText(jqElem.children('span'),playLength-lead,lead);
+
+  if(nextElem != null){
+    setTimeout(function(){
+        sonify(nextElem,0)
+    },playLength*1000);
+  }
   return playLength;
+
 }
 
 
@@ -83,5 +96,4 @@ function showText(jqElem,time, delay){
       showWord(word,prevWord,i*time);
     }
   },delay*1000);
-
 }
