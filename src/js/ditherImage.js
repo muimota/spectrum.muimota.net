@@ -18,10 +18,10 @@ function ditherImage(domElement){
     console.log('not image');
     return;
   }
-  //when loaded
+  //when loaded, not before
   img.load( function() {
 
-    var resolution = 3;
+    var resolution = 2;
 
     canvas.width  = this.clientWidth / resolution ;
     canvas.height = this.clientHeight/ resolution ;
@@ -66,12 +66,79 @@ function ditherImage(domElement){
 
         }
     }
+    //sonify just the black pizels as 0, 8 pixels = byte
+    //skip groups of 8 white pixels
+
+    var bitarray = [];
+    var chunksize = 8;
+    var chunk = new Array();
+
+    for(var i=0;i<chunksize;i++){
+      chunk.push(0);
+    }
+
+    for(var i=0;i<pixel.length;i+=chunksize*4){
+      var ignoreChunk = false;
+      for(var j=0;j<chunksize;j++){
+        var whitePixel = pixel[i] == 0xCD && pixel[i+1] == 0xCD && pixel[i+2] == 0xCD;
+        ignoreChunk = ignoreChunk && whitePixel; //ignore while pixels in chunk are white
+        chunk[j] = whitePixel ? 1:0;
+      }
+      if(!ignoreChunk){
+        bitarray = bitarray.concat(chunk);
+      }
+    }
+
+    audioBitarray(bitarray,0).start();
 
     ctx.putImageData( imageData, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     //css scale up
     canvas.style.width  = img.css('width');
     canvas.style.height = img.css('height');
     img.replaceWith(canvas);
+
+    var pixelData = ctx.createImageData(8,1); // only do this once per page
+    var pixelOffset = 0;
+
+     putPixel();
+
+    function putPixel(){
+      var ignorePixel = true;
+      //ignore white pixels from the front
+      while(ignorePixel && pixelOffset<imageData.data.length){
+        //just check rgb
+        for(var channel=0;ignorePixel && channel<3;channel++){
+          var data = imageData.data[pixelOffset * 4 + channel]
+          ignorePixel = data == 0xCD
+        }
+        if(ignorePixel){
+          pixelOffset ++;
+        }
+      }
+      pixelOffset = pixelOffset - pixelOffset % pixelData.width;
+      if(pixelOffset<imageData.data.length){
+          var x = pixelOffset%imageData.width;
+          var y =  Math.floor(pixelOffset/imageData.width);
+          for(var i=0;i<pixelData.width;i++){
+            //copy channels
+            for(var channel=0;channel<4;channel++){
+              pixelData.data[i * 4 + channel] = imageData.data[pixelOffset*4 + i*4 + channel];
+            }
+          }
+          ctx.putImageData( pixelData,x,y );
+
+          //check
+          if( x + pixelData.width > imageData.width){
+            pixelOffset += imageData.width - x;
+          }else{
+            pixelOffset += pixelData.width;
+          }
+
+          setTimeout(putPixel,10);
+      }
+    }
+
   });
 
 }
