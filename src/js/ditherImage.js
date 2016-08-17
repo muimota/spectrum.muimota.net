@@ -18,6 +18,7 @@ function ditherImage(domElement){
     console.log('not image');
     return;
   }
+  img.attr("src", img.attr("src"))
   //when loaded, not before
   img.load( function() {
 
@@ -60,9 +61,9 @@ function ditherImage(domElement){
             a    = ( x * height + y ) * 4;
             b    = threshold_map_4x4[ x%4 ][ y%4 ];
 
-            pixel[ a + 0 ] = quantize(pixel[ a + 0 ] + b);
-            pixel[ a + 1 ] = quantize(pixel[ a + 1 ] + b);
-            pixel[ a + 2 ] = quantize(pixel[ a + 2 ] + b);
+            imageData.data[ a + 0 ] = quantize(imageData.data[ a + 0 ] + b);
+            imageData.data[ a + 1 ] = quantize(imageData.data[ a + 1 ] + b);
+            imageData.data[ a + 2 ] = quantize(imageData.data[ a + 2 ] + b);
 
         }
     }
@@ -72,24 +73,37 @@ function ditherImage(domElement){
     var bitarray = [];
     var chunksize = 8;
     var chunk = new Array();
+    var sonifiedPixels = 0;
+    var channelsCount = 3; //we use just one channel
 
-    for(var i=0;i<chunksize;i++){
+    for(var i=0;i<chunksize*channelsCount;i++){
       chunk.push(0);
     }
-
-    for(var i=0;i<pixel.length;i+=chunksize*4){
-      var ignoreChunk = false;
+    //evaluate how many chunk will be ignored
+    for(var i=0;i<imageData.data.length/4;i+=chunksize){
+      var ignoreChunk = true;
       for(var j=0;j<chunksize;j++){
-        var whitePixel = pixel[i] == 0xCD && pixel[i+1] == 0xCD && pixel[i+2] == 0xCD;
-        ignoreChunk = ignoreChunk && whitePixel; //ignore while pixels in chunk are white
-        chunk[j] = whitePixel ? 1:0;
+        for(var channel=0;channel<channelsCount;channel++){
+          var data = imageData.data[( i + j)*4+channel];
+          ignoreChunk = ignoreChunk && data == 0xCD; //ignore while pixels in chunk are white
+          chunk[j+channel] = (data == 0xCD) ? 1:0;
+        }
       }
-      if(!ignoreChunk){
+      if(ignoreChunk == false){
         bitarray = bitarray.concat(chunk);
+        sonifiedPixels += chunksize;
+      }else{
+        console.log('ignoreChunk');
       }
     }
 
-    audioBitarray(bitarray,0).start();
+    console.log('sonified pixels'+sonifiedPixels)
+    var lead = 1.0;
+    var audioBufferNode = audioBitarray(bitarray,lead);
+    var playLength = audioBufferNode.buffer.duration-lead;
+    var delay = playLength / (sonifiedPixels / chunksize) * 1000;
+
+
 
     ctx.putImageData( imageData, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -98,45 +112,75 @@ function ditherImage(domElement){
     canvas.style.height = img.css('height');
     img.replaceWith(canvas);
 
-    var pixelData = ctx.createImageData(8,1); // only do this once per page
+    var pixelData = ctx.createImageData(chunksize,1); // only do this once per page
     var pixelOffset = 0;
+    var drawPixels = 0;
 
-     putPixel();
+    audioBufferNode.start();
+    var startTime = audioCtx.currentTime;
+    setTimeout(putPixel,lead*1000);
 
     function putPixel(){
-      var ignorePixel = true;
+
       //ignore white pixels from the front
-      while(ignorePixel && pixelOffset<imageData.data.length){
-        //just check rgb
-        for(var channel=0;ignorePixel && channel<3;channel++){
-          var data = imageData.data[pixelOffset * 4 + channel]
-          ignorePixel = data == 0xCD
+      var ignoreChunk = true;
+
+      while(ignoreChunk && pixelOffset<imageData.data.length/4){
+
+        for(var i=0;i<chunksize && ignoreChunk;i++){
+          //just check rgb
+          for(var channel=0;channel<3 && ignoreChunk;channel++){
+            var data = imageData.data[(pixelOffset+i) * 4 + channel]
+            ignoreChunk = (data == 0xCD); //if there is something not white
+                                          //dont ignore the chunk
+          }
         }
-        if(ignorePixel){
-          pixelOffset ++;
+
+        if(ignoreChunk){
+          console.log('ignoreChunk');
+          pixelOffset += chunksize;
         }
       }
-      pixelOffset = pixelOffset - pixelOffset % pixelData.width;
-      if(pixelOffset<imageData.data.length){
+
+      //pixelOffset = pixelOffset - pixelOffset % pixelData.width;
+
+      if(pixelOffset<imageData.data.length/4){
+
           var x = pixelOffset%imageData.width;
           var y =  Math.floor(pixelOffset/imageData.width);
+
           for(var i=0;i<pixelData.width;i++){
             //copy channels
             for(var channel=0;channel<4;channel++){
-              pixelData.data[i * 4 + channel] = imageData.data[pixelOffset*4 + i*4 + channel];
+              pixelData.data[i * 4 + channel] = imageData.data[(pixelOffset + i) * 4 + channel];
             }
           }
-          ctx.putImageData( pixelData,x,y );
 
-          //check
+          ctx.putImageData( pixelData,x,y );
+          drawPixels+=8;
+
+          //check if chunk is out the canvas
           if( x + pixelData.width > imageData.width){
-            pixelOffset += imageData.width - x;
-          }else{
-            pixelOffset += pixelData.width;
+
+            var outPixels = x + pixelData.width - imageData.width;
+            for(var i=0;i<outPixels;i++){
+              //copy channels
+              for(var channel=0;channel<4;channel++){
+                pixelData.data[i * 4 + channel] = imageData.data[(pixelOffset + chunksize - i) * 4 + channel];
+              }
+            }
+            ctx.putImageData( pixelData,0,y+1 );
           }
 
-          setTimeout(putPixel,10);
+          pixelOffset += pixelData.width;
+          var currentTime = audioCtx.currentTime - startTime;
+
+          setTimeout(putPixel,1);
+      }else{
+        audioBufferNode.stop();
+        console.log('drawnPixels: '+drawPixels);
       }
+
     }
 
   });

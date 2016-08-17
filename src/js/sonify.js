@@ -11,7 +11,7 @@ function initAudio(){
 
   sampleRate = 22100;
   gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.0;
+  gainNode.gain.value = 0.1;
   gainNode.connect(audioCtx.destination);
 
   //create buffers for each frequency
@@ -27,28 +27,21 @@ function initAudio(){
   }
 
 }
-//creates an audio buffer based on string and lead time
-function audioString(string,leadTime){
 
-  var bits = [];
+function audioBitarray(bitarray,lead){
+
   var frameCount = 0;
-  var bitBuffers = [buffers['1022'],buffers['2044']];
+  var bitBuffers = [buffers['2044'],buffers['1022']];
   var leadFrames = 0;
 
-  for (var charIndex = 0;charIndex<string.length;charIndex++) {
-    var charCode = string.charCodeAt(charIndex);
-
-    for(var bitIndex=7;bitIndex>=0;bitIndex--){
-        var bit = (charCode >> bitIndex) & 1;
-        bits.push(bit);
-        frameCount += bitBuffers[bit].length;
-    }
+  if (lead > 0) {
+    leadFrames = lead * sampleRate
+    frameCount += leadFrames; //add one second
   }
 
-
-  if (leadTime > 0) {
-    leadFrames = leadTime * sampleRate
-    frameCount += leadFrames; //add one second
+  for(var i=0;i<bitarray.length;i++){
+    var bit = bitarray[i];
+    frameCount += bitBuffers[bit].length;
   }
 
   myArrayBuffer = audioCtx.createBuffer(1, frameCount, sampleRate );
@@ -60,8 +53,8 @@ function audioString(string,leadTime){
     nowBuffering[bufferIndex] = leadBuffer[bufferIndex % leadBuffer.length];
   }
 
-  for(var i=0;i<bits.length;i++){
-    var buffer = bitBuffers[bits[i]];
+  for(var i=0;i<bitarray.length;i++){
+    var buffer = bitBuffers[bitarray[i]];
     for(var j=0;j<buffer.length;j++){
       nowBuffering[bufferIndex] = buffer[j];
       bufferIndex ++;
@@ -73,4 +66,22 @@ function audioString(string,leadTime){
   source.connect(gainNode);
 
   return source;
+}
+
+//creates an audio buffer based on string and lead time
+function audioString(string,lead){
+
+  var bitarray = [];
+
+
+  for (var charIndex = 0;charIndex<string.length;charIndex++) {
+    var charCode = string.charCodeAt(charIndex);
+
+    for(var bitIndex=7;bitIndex>=0;bitIndex--){
+        var bit = (charCode >> bitIndex) & 1;
+        bitarray.push(bit);
+    }
+  }
+
+  return audioBitarray(bitarray,lead)
 }

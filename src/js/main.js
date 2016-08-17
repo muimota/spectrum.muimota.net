@@ -1,17 +1,15 @@
 
-$(document).ready(function(){
+window.onload = function(){
 
   initAudio();
-  ditherImages();
-  initText($('.loadingText p'));
 
+  initText($('.loadingText p'));
   var jqElem = $('.loadingText p');
-  var delay = 0.2;
   var lead  = 1.2;
 
-  sonify(jqElem,lead);
-
-});
+  var playLength = sonify(jqElem,lead);
+  ditherImages();
+};
 
 function sonify(jqElem,lead) {
 
@@ -22,10 +20,12 @@ function sonify(jqElem,lead) {
     jqElem = $(auxElem);
   }
   var text = jqElem.text();
+
   var audioBufferNode = audioString(text,lead);
   var playLength = audioBufferNode.buffer.length / audioBufferNode.buffer.sampleRate;
 
   audioBufferNode.start();
+
   showText(jqElem.children('span'),playLength-lead,lead);
 
   if(nextElem != null){
