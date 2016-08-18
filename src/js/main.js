@@ -3,12 +3,11 @@ window.onload = function(){
 
   initAudio();
 
-  initText($('.loadingText p'));
-  var jqElem = $('.loadingText p');
+  initText($('p'));
+  var jqElem = $('p');
   var lead  = 1.2;
 
-  var playLength = sonify(jqElem,lead);
-  ditherImages();
+  ditherImages(undefined,function(){sonify(jqElem,lead);});
 };
 
 function sonify(jqElem,lead) {
@@ -16,7 +15,7 @@ function sonify(jqElem,lead) {
   var nextElem = null;
   if(jqElem.length>1){
     var auxElem = jqElem[0];
-    nextElem = jqElem.nextAll();
+    nextElem = jqElem.slice(1);
     jqElem = $(auxElem);
   }
   var text = jqElem.text();
@@ -26,7 +25,7 @@ function sonify(jqElem,lead) {
 
   audioBufferNode.start();
 
-  showText(jqElem.children('span'),playLength-lead,lead);
+  showText(jqElem.children('.unloaded'),playLength-lead,lead);
 
   if(nextElem != null){
     setTimeout(function(){
@@ -44,35 +43,31 @@ function initText(domElement){
 
   domElement = $(domElement);
 
-  if(domElement.size()>1){
-    for(var i=0;i<domElement.size();i++){
-      initText(domElement.get(i));
+  if(domElement.length>1){
+    for(var i=0;i<domElement.length;i++){
+      initText(domElement[i]);
     }
     return
   }
 
-  var text = domElement.text().trim();
-  text = text.replace(/  +|\n/g, ' ');
-
-  var words = text.split(' ');
-  text = text.replace(/\s/g,'');
-  var lastIndex = 0;
-  $(domElement).empty();
-  //puts every word in a span
-  $.each(words, function(i, word) {
-      var index = text.indexOf(word,lastIndex);
-      lastIndex = index + word.length;
-      var wordDom;
-      if(word == '<br>'){
-        wordDom = $('<br>');
+  var elements = domElement.contents().each(
+    function(i){
+      if(this.nodeType == 3){
+        var self = $(this);
+        var text = self.text().trim().replace(/  +|\n/g, ' ');
+        var words = text.split(' ');
+        $.each(words, function(i, word) {
+            var wordDom;
+            wordDom = $('<span>').text(word).addClass('unloaded');
+            self.before(wordDom);
+            self.before(' ');
+        });
+        self.remove();
       }else{
-        wordDom = $('<span>').text(word).data('start',index).data('end',lastIndex).addClass('unloaded');
+        $(this).addClass('unloaded');
+        $(this).after(' ');
       }
-      $(domElement).append(wordDom);
-      $(domElement).append(' ');
-
-  });
-  domElement.data('text',text);
+    });
 }
 
 

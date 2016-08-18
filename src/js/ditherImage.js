@@ -1,19 +1,23 @@
 //http://stackoverflow.com/a/12423733/2205297
-function ditherImages(selector){
+function ditherImages(selector,callback){
 
   if(selector == undefined){
     selector = 'img';
   }
+  var jqElem = $(selector);
 
-  $(selector).each(function(index,domElement){ditherImage(domElement);});
+  ditherImage(jqElem,callback);
 }
 
-function ditherImage(domElement){
+function ditherImage(domElement,callback){
 
   var canvas = document.createElement('canvas');
   var ctx    = canvas.getContext('2d');
-  var img    = $(domElement);
-
+  domElement = $(domElement);
+  var img    = domElement;
+  if(domElement.length>1){
+    img = $(domElement[0]);
+  }
   if(!img.is('img')){
     console.log('not image');
     return;
@@ -22,7 +26,7 @@ function ditherImage(domElement){
   //when loaded, not before
   img.load( function() {
 
-    var resolution = 2;
+    var resolution = 3;
 
     canvas.width  = this.clientWidth / resolution ;
     canvas.height = this.clientHeight/ resolution ;
@@ -178,6 +182,12 @@ function ditherImage(domElement){
           setTimeout(putPixel,1);
       }else{
         audioBufferNode.stop();
+
+        if(domElement.length>1){
+          ditherImage(domElement.slice(1),callback);
+        }else if(callback !== undefined){
+          callback();
+        }
         console.log('drawnPixels: '+drawPixels);
       }
 

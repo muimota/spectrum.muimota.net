@@ -15,32 +15,48 @@ a,a:visited{text-decoration: none;
 }
 a:hover{color:red;}
 
-span.loading{
+.loading{
   visibility: visible;
   color:#CCC;
   background: black;
 }
-
-span.loaded{
+a.loading{
+  color:#CCC;
+  background: red;
+}
+a.loaded{
+  color:red;
+}
+a.loaded:hover{
+  color:#CCC;
+  background:red;
+}
+.loaded{
   visibility: visible;
 }
 
-span{
+.unloaded{
   visibility: hidden;
 }
 
 .wrap{
-  width:400px;
-  font-size: 1em;
+  width:500px;
+  font-size: 100%;
   margin: 0 auto;
 }
+@media (min-width: 600px) {
+  .wrap{
+    width:40%;
+  }
+}
+
 .wrap > img{
-  width:400px;
+  width:100%;
 }
 h3{
   text-transform: uppercase;
 }
 
 img{
-  visibility: hidden; 
+  visibility: hidden;
 }

@@ -31,7 +31,7 @@ function initAudio(){
 function audioBitarray(bitarray,lead){
 
   var frameCount = 0;
-  var bitBuffers = [buffers['2044'],buffers['1022']];
+  var bitBuffers = [buffers['1022'],buffers['2044']];
   var leadFrames = 0;
 
   if (lead > 0) {
