@@ -10,10 +10,13 @@ body{
   margin:0;
 }
 
+nav{
+  margin:1em auto;
+}
+
 a,a:visited{text-decoration: none;
   color:black;
 }
-a:hover{color:red;}
 
 .loading{
   visibility: visible;
@@ -24,12 +27,15 @@ a.loading{
   color:#CCC;
   background: red;
 }
-a.loaded{
+a,a:visited{
   color:red;
 }
-a.loaded:hover{
+a:hover{
   color:#CCC;
   background:red;
+}
+a:hover canvas{
+  background:#CCC;
 }
 .loaded{
   visibility: visible;
@@ -50,13 +56,13 @@ a.loaded:hover{
   }
 }
 
-.wrap > img{
-  width:100%;
+.wrap  img{
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:100%;
+  visibility: hidden;
 }
 h3{
   text-transform: uppercase;
-}
-
-img{
-  visibility: hidden;
 }

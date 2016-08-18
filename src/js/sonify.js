@@ -11,7 +11,7 @@ function initAudio(){
 
   sampleRate = 22100;
   gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.1;
+  gainNode.gain.value = 0.01;
   gainNode.connect(audioCtx.destination);
 
   //create buffers for each frequency

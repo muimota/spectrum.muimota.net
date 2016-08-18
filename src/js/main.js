@@ -1,14 +1,14 @@
 
-window.onload = function(){
+$(document).ready(function(){
 
   initAudio();
 
   initText($('p'));
   var jqElem = $('p');
   var lead  = 1.2;
-
   ditherImages(undefined,function(){sonify(jqElem,lead);});
-};
+}
+);
 
 function sonify(jqElem,lead) {
 
