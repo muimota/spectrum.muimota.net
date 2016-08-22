@@ -1,16 +1,4 @@
-
-$(document).ready(init);
-
-function init(){
-
-  initAudio();
-  initText($('p'));
-
-  var jqElem = $('p');
-  var lead  = 1.2;
-
-  ditherImages(undefined,function(){setTimeout(function(){sonify(jqElem,lead);},500)});
-}
+//animate sound and text
 
 function sonify(jqElem,lead) {
 

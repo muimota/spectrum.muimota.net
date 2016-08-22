@@ -37,6 +37,19 @@ a:hover{
 a:hover canvas{
   background:#CCC;
 }
+
+a.soundbtn{
+  float: right;
+  color:#CCC;
+}
+a.soundOff,a.soundOn:hover{
+  background:black;
+}
+a.soundOn,a.soundOff:hover{
+  background:blue;
+}
+
+
 .loaded{
   visibility: visible;
 }
