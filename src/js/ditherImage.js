@@ -96,8 +96,6 @@ function ditherImage(domElement,callback){
       if(ignoreChunk == false){
         bitarray = bitarray.concat(chunk);
         sonifiedPixels += chunksize;
-      }else{
-        console.log('ignoreChunk');
       }
     }
 
@@ -141,7 +139,6 @@ function ditherImage(domElement,callback){
         }
 
         if(ignoreChunk){
-          console.log('ignoreChunk');
           pixelOffset += chunksize;
         }
       }
