@@ -10,8 +10,14 @@ body{
   margin:0;
 }
 
+#topbar{
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 1;
+}
 nav{
-  margin:1em auto;
+  background-color: #CCC;
 }
 
 a,a:visited{text-decoration: none;
@@ -40,15 +46,19 @@ a:hover canvas{
 
 a.soundbtn{
   float: right;
-  color:#CCC;
 }
-a.soundOff,a.soundOn:hover{
-  background:black;
+a.soundOff{
+  color:black;
 }
-a.soundOn,a.soundOff:hover{
-  background:blue;
+a.soundOff:hover{
+    color:#CCC;
+  background: black;
 }
 
+a.soundOn{
+  color:#CCC;
+  background: blue;
+}
 
 .loaded{
   visibility: visible;
@@ -62,6 +72,9 @@ a.soundOn,a.soundOff:hover{
   width:500px;
   font-size: 100%;
   margin: 0 auto;
+}
+div.wrap{
+  margin-top: 30px;
 }
 @media (min-width: 600px) {
   .wrap{

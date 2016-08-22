@@ -1,97 +1,38 @@
 
 $(document).ready(init);
 
+var soundActive;
+
 function init(){
 
-  initAudio();
-  initText($('p'));
 
+  initAudio(22500,.3);
+  initText($('p'));
+  var soundCookie = Cookies.get('soundActive')
+  soundActive = soundCookie == undefined ||  soundCookie == 'true';
+  setSound(soundActive);
   var jqElem = $('p');
   var lead  = 1.2;
 
   ditherImages(undefined,function(){setTimeout(function(){sonify(jqElem,lead);},500)});
-}
 
-function sonify(jqElem,lead) {
-
-  var nextElem = null;
-  if(jqElem.length>1){
-    var auxElem = jqElem[0];
-    nextElem = jqElem.slice(1);
-    jqElem = $(auxElem);
-  }
-  var text = jqElem.text();
-
-  var audioBufferNode = audioString(text,lead);
-  var playLength = audioBufferNode.buffer.length / audioBufferNode.buffer.sampleRate;
-
-  audioBufferNode.start();
-
-  showText(jqElem.children('.unloaded'),playLength-lead,lead);
-
-  if(nextElem != null){
-    setTimeout(function(){
-        sonify(nextElem,0)
-    },playLength*1000);
-  }
-  return playLength;
-
-}
-
-
-
-//insert every word inside a span
-function initText(domElement){
-
-  domElement = $(domElement);
-
-  if(domElement.length>1){
-    for(var i=0;i<domElement.length;i++){
-      initText(domElement[i]);
+  $('a.soundbtn').click(function(){
+      setSound(!soundActive);
+      return false;
     }
-    return
-  }
-
-  var elements = domElement.contents().each(
-    function(i){
-      if(this.nodeType == 3){
-        var self = $(this);
-        var text = self.text().trim().replace(/  +|\n/g, ' ');
-        var words = text.split(' ');
-        $.each(words, function(i, word) {
-            var wordDom;
-            wordDom = $('<span>').text(word).addClass('unloaded');
-            self.before(wordDom);
-            self.before(' ');
-        });
-        self.remove();
-      }else{
-        $(this).addClass('unloaded');
-        $(this).after(' ');
-      }
-    });
+  )
 }
 
-
-
-function showText(jqElem,time, delay){
-
-  // dealy between words
-  var time = time/jqElem.length*1000;
-
-  //a local function to keep
-  function showWord(word,prevWord,time){
-    setTimeout( function() {
-      word.removeClass().addClass('loading');
-      prevWord.removeClass().addClass('loaded');
-    },time);
+function setSound(_soundActive){
+  soundActive = _soundActive;
+  activateSound(soundActive);
+  Cookies.set('soundActive', soundActive);
+  var jqElem = $('nav a.soundbtn');
+  if(soundActive){
+    jqElem.text("SOUND:ON")
+    jqElem.removeClass('soundOff').addClass('soundOn');
+  }else{
+    jqElem.text("SOUND:OFF")
+    jqElem.removeClass('soundOn').addClass('soundOff');
   }
-
-  setTimeout( function() {
-    for(var i=0;i<jqElem.length+1;i++){
-      var word = $(jqElem[i]);
-      var prevWord = $(jqElem[i-1]);
-      showWord(word,prevWord,i*time);
-    }
-  },delay*1000);
 }

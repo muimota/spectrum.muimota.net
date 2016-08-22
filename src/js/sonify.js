@@ -1,17 +1,19 @@
 var audioCtx = null;
 var gainNode = null;
+var gainLevel ;
 
 var buffers = null;
 var sampleRate = null;
 var playingSound = null;
 
-function initAudio(){
+function initAudio(_sampleRate,gain){
   // create web audio api context
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  sampleRate = 22100;
+  sampleRate = (_sampleRate)?_sampleRate:22500;
+  gainLevel = (gain)?gain:0.0;
   gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.0;
+  gainNode.gain.value = gainLevel;
   gainNode.connect(audioCtx.destination);
 
   //create buffers for each frequency
@@ -26,6 +28,14 @@ function initAudio(){
     }
   }
 
+}
+
+function activateSound(soundActive){
+  if(soundActive){
+    gainNode.gain.value = gainLevel
+  }else{
+    gainNode.gain.value = 0.0;
+  }
 }
 
 function audioBitarray(bitarray,lead){
