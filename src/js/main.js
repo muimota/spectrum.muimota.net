@@ -6,7 +6,7 @@ var soundActive;
 function init(){
 
 
-  initAudio(22500,.3);
+  initAudio(22500,.01);
   initText($('p'));
   var soundCookie = Cookies.get('soundActive')
   soundActive = soundCookie == undefined ||  soundCookie == 'true';
