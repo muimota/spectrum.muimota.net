@@ -3,7 +3,7 @@
 ![Alt text](src/img/fb_thumb.jpg "Project screenshot")
 
 A experiment that tries to emulate how would be internet if we used 8 bit computers.
-Is some sort of media archeology exercise, [Web Audio](https://developer.mozilla.org/es/docs/Web_Audio_API) experiment and a tribute to the [ZX Spectrum(https://en.wikipedia.org/wiki/ZX_Spectrum) computer.
+Is some sort of media archeology exercise, [Web Audio](https://developer.mozilla.org/es/docs/Web_Audio_API) experiment and a tribute to the [ZX Spectrum](https://en.wikipedia.org/wiki/ZX_Spectrum) computer.
 
 - All the text is sonified using ZX Spectrum's cassettes encoding
 
