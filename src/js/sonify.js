@@ -1,3 +1,4 @@
+//2016 Martin Nadal martin@muimota.net
 var audioCtx = null;
 var gainNode = null;
 var gainLevel ;
@@ -37,7 +38,8 @@ function activateSound(soundActive){
     gainNode.gain.value = 0.0;
   }
 }
-
+//sonifies an array with bits (eg:[0,1,1,0,1])
+//lead is the time a 808Hz will preced info
 function audioBitarray(bitarray,lead){
 
   var frameCount = 0;

@@ -1,4 +1,4 @@
-
+// (c)2016 Martin Nadal martin@muimota.net
 $(document).ready(init);
 
 var soundActive;

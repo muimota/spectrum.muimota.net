@@ -1,4 +1,8 @@
-//http://stackoverflow.com/a/12423733/2205297
+//2016 Martin Nadal martin@muimota.net
+//replace images with a canvas with a dithered image to look
+//ZX Spectrum
+//based in http://stackoverflow.com/a/12423733/2205297
+
 function ditherImages(selector,callback){
 
   if(selector == undefined){

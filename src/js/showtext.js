@@ -1,3 +1,4 @@
+//2016 Martin Nadal martin@muimota.net
 //animate sound and text
 
 function sonify(jqElem,lead) {
