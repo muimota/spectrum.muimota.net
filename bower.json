@@ -1,0 +1,25 @@
+{
+  "name": "spectrum.muimota.net",
+  "description": "source code of spectrum.muimota.net my 8bit / ZX Spectrum styled homepage",
+  "main": "src/js/main.js",
+  "authors": [
+    "Martin Nadal <martin.nadal@gmail.com>"
+  ],
+  "license": "GPL",
+  "keywords": [
+    "spectrum",
+    "8bit"
+  ],
+  "homepage": "https://github.com/muimota/spectrum.muimota.net",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.0.0"
+  }
+}
